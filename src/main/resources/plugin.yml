@@ -13,6 +13,10 @@ commands:
     usage: /vachager <reload|stats|toggle>
     permission: vachager.admin
     aliases: [vg]
+  home:
+    description: Teleport to your home or set your home location.
+  spawn:
+    description: Teleport to the world spawn point.
 
 permissions:
   vachager.admin:
