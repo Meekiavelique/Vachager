@@ -1,0 +1,26 @@
+name: Vachager
+version: '1.0'
+main: com.meekdev.vachager.VachagerPlugin
+api-version: '1.21'
+authors: [MeekDev]
+description: Performance optimization and Discord integration plugin
+
+softdepend: [CarbonChat]
+
+commands:
+  vachager:
+    description: Main command for Vachager plugin
+    usage: /vachager <reload|stats|toggle>
+    permission: vachager.admin
+    aliases: [vg]
+
+permissions:
+  vachager.admin:
+    description: Allows access to all Vachager commands
+    default: op
+  vachager.bypass:
+    description: Allows bypassing chunk generation restrictions
+    default: op
+  vachager.stats:
+    description: Allows viewing server performance statistics
+    default: op
