@@ -1,6 +1,6 @@
 package com.meekdev.vachager.chat;
 
-import com.meekdev.vachager.VachagerPlugin;
+import com.meekdev.vachager.VachagerSMP;
 import net.draycia.carbon.api.CarbonChat;
 import net.draycia.carbon.api.CarbonChatProvider;
 import net.draycia.carbon.api.channels.ChatChannel;
@@ -15,19 +15,15 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 public class ChatManager implements Listener {
-
-    private final VachagerPlugin plugin;
+    private final VachagerSMP plugin;
     private final List<Pattern> blockedPatterns;
     private CarbonChat carbonChat;
 
-    public ChatManager(VachagerPlugin plugin) {
+    public ChatManager(VachagerSMP plugin) {
         this.plugin = plugin;
         this.blockedPatterns = new ArrayList<>();
-
         plugin.getServer().getPluginManager().registerEvents(this, plugin);
-
         loadBlockedPatterns();
-
         setupCarbonChat();
     }
 
@@ -71,7 +67,6 @@ public class ChatManager implements Listener {
     public void addBlockedPattern(String pattern) {
         try {
             blockedPatterns.add(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
-
             List<String> patterns = plugin.getConfig().getStringList("chat.blocked-patterns");
             patterns.add(pattern);
             plugin.getConfig().set("chat.blocked-patterns", patterns);
@@ -83,7 +78,6 @@ public class ChatManager implements Listener {
 
     public void removeBlockedPattern(String pattern) {
         blockedPatterns.removeIf(p -> p.pattern().equals(pattern));
-
         List<String> patterns = plugin.getConfig().getStringList("chat.blocked-patterns");
         patterns.remove(pattern);
         plugin.getConfig().set("chat.blocked-patterns", patterns);
