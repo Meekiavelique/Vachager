@@ -1,9 +1,3 @@
-
-
-performance:
-  min-tps: 14.0
-
-
 chat:
   blocked-patterns:
     - "(?i)\\b(n+[i1]+gg+[e3]+r+|f+[a4]+g+|r+[e3]+t+[a4]+r+d+)\\b"
