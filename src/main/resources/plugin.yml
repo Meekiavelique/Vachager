@@ -1,30 +1,31 @@
-name: Vachager
+name: VachagerSMP
 version: '1.0'
-main: com.meekdev.vachager.VachagerPlugin
+main: com.meekdev.vachager.VachagerSMP
 api-version: '1.21'
-authors: [MeekDev]
-description: Performance optimization and Discord integration plugin
-
+authors: [Meek]
 softdepend: [CarbonChat]
-
+description: SMP
 commands:
-  vachager:
-    description: Main command for Vachager plugin
-    usage: /vachager <reload|stats|toggle>
-    permission: vachager.admin
-    aliases: [vg]
-  home:
-    description: Teleport to your home or set your home location.
-  spawn:
-    description: Teleport to the world spawn point.
+  chairs:
+    description: Toggle the chair system
+    usage: /<command>
+    permission: vachager.chairs.toggle
+  toggleend:
+    description: Toggle access to The End dimension
+    usage: /<command>
+    permission: vachager.end.toggle
+  setspawn:
+    description: Set your respawn point at a Lodestone
+    usage: /<command>
+    permission: vachager.spawn.set
 
 permissions:
-  vachager.admin:
-    description: Allows access to all Vachager commands
+  vachager.end.toggle:
+    description: Allows toggling The End dimension
     default: op
-  vachager.bypass:
-    description: Allows bypassing chunk generation restrictions
-    default: op
-  vachager.stats:
-    description: Allows viewing server performance statistics
+  vachager.spawn.set:
+    description: Allows setting spawn points
+    default: true
+  vachager.end.bypass:
+    description: Allows bypassing End restrictions
     default: op
