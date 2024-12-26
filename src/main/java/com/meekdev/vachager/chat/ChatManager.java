@@ -51,7 +51,7 @@ public class ChatManager implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (isMessageBlocked(event.getMessage())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§cYour message was blocked due to containing restricted content.");
+            event.getPlayer().sendMessage("§cVotre message a été bloqué car il contient du contenu restreint.\n");
         }
     }
 

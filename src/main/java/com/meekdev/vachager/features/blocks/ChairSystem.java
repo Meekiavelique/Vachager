@@ -91,7 +91,7 @@ public class ChairSystem implements Listener, CommandExecutor {
 
     private void sitPlayer(Player player, Block block) {
         ArmorStand chair = block.getWorld().spawn(
-                block.getLocation().add(0.5, 0.3, 0.5),
+                block.getLocation().add(0.5, -0.2, 0.5),
                 ArmorStand.class
         );
 
@@ -102,6 +102,7 @@ public class ChairSystem implements Listener, CommandExecutor {
 
         sittingPlayers.put(player.getUniqueId(), chair);
     }
+
 
     private void unsitPlayer(Player player) {
         ArmorStand chair = sittingPlayers.remove(player.getUniqueId());
