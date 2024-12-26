@@ -35,7 +35,7 @@ public class ListenerManager implements Listener {
             if (!plugin.getWorldManager().isEndEnabled()) {
                 event.setCancelled(true);
                 event.getPlayer().sendMessage(
-                        plugin.getMiniMessage().deserialize("<gradient:#FF0000:#FF6600>The End is currently disabled!</gradient>")
+                        plugin.getMiniMessage().deserialize("<color:#ffce47>L'End est actuellement désactivé !</color>")
                 );
             }
         }
