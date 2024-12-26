@@ -14,12 +14,6 @@ public class ConfigManager {
     private final Map<String, FileConfiguration> configs;
     private final Map<String, File> configFiles;
 
-    private static final String[] CONFIG_FILES = {
-            "config.yml",
-            "messages.yml",
-            "player_data.yml"
-    };
-
     public ConfigManager(VachagerSMP plugin) {
         this.plugin = plugin;
         this.configs = new HashMap<>();
@@ -28,16 +22,32 @@ public class ConfigManager {
     }
 
     private void createDefaultConfigs() {
-        for (String fileName : CONFIG_FILES) {
-            File file = new File(plugin.getDataFolder(), fileName);
-
-            if (!file.exists()) {
-                plugin.saveResource(fileName, false);
-            }
-
-            configFiles.put(fileName, file);
-            configs.put(fileName, YamlConfiguration.loadConfiguration(file));
+        // Si le dossier du plugin n'existe pas, le créer
+        if (!plugin.getDataFolder().exists()) {
+            plugin.getDataFolder().mkdir();
         }
+
+        createConfig("config.yml");
+        createConfig("messages.yml");
+        createConfig("player_data.yml");
+    }
+
+    private void createConfig(String fileName) {
+        File file = new File(plugin.getDataFolder(), fileName);
+
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+                if (plugin.getResource(fileName) != null) {
+                    plugin.saveResource(fileName, false);
+                }
+            } catch (IOException e) {
+                plugin.getLogger().severe("Could not create " + fileName + ": " + e.getMessage());
+            }
+        }
+
+        configFiles.put(fileName, file);
+        configs.put(fileName, YamlConfiguration.loadConfiguration(file));
     }
 
     public void loadAll() {
