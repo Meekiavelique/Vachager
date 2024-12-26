@@ -11,13 +11,10 @@ commands:
     usage: /<command>
     permission: vachager.chairs.toggle
   toggleend:
-    description: Toggle access to The End dimension
+    description: Toggle the end dimension
     usage: /<command>
     permission: vachager.end.toggle
-  setspawn:
-    description: Set your respawn point at a Lodestone
-    usage: /<command>
-    permission: vachager.spawn.set
+
 
 permissions:
   vachager.end.toggle:
