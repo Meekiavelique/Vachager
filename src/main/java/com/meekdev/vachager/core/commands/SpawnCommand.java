@@ -7,7 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.Location;
-import org.bukkit.Material;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,8 +16,8 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
 
     public SpawnCommand(VachagerSMP plugin) {
         this.plugin = plugin;
-        plugin.getCommand("setspawn").setExecutor(this);
-        plugin.getCommand("setspawn").setTabCompleter(this);
+        plugin.getCommand("spawn").setExecutor(this);
+        plugin.getCommand("spawn").setTabCompleter(this);
     }
 
     @Override
@@ -28,14 +27,9 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
             return true;
         }
 
-        Location loc = player.getLocation();
-        if (loc.getBlock().getType() != Material.LODESTONE) {
-            player.sendMessage(plugin.getMiniMessage().deserialize("<gradient:#FF0000:#FF6600>You must be standing on a Lodestone!</gradient>"));
-            return true;
-        }
-
-        plugin.getRespawnManager().setRespawnPoint(player, loc);
-        player.sendMessage(plugin.getMiniMessage().deserialize("<gradient:#00FF00:#00FFAA>Spawn point set successfully!</gradient>"));
+        Location spawnLocation = player.getWorld().getSpawnLocation();
+        player.teleport(spawnLocation);
+        player.sendMessage(plugin.getMiniMessage().deserialize("<color:#ffce47>Vous êtes maintenant au spawn !</color>"));
 
         return true;
     }
