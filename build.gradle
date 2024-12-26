@@ -15,11 +15,13 @@ repositories {
         name = "sonatype"
         url = "https://oss.sonatype.org/content/groups/public/"
     }
+    maven { url 'https://nexus.scarsz.me/content/groups/public/' }
 }
 
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.3-R0.1-SNAPSHOT")
     compileOnly("de.hexaoxi:carbonchat-api:3.0.0-beta.26")
+    compileOnly 'com.discordsrv:discordsrv:1.28.0'
     implementation 'org.java-websocket:Java-WebSocket:1.6.0'
 }
 
