@@ -1,36 +1,28 @@
+
+
+respawn:
+  minutes_per_diamond: 5
+  max_duration: 120
+  enabled: true
+
 chat:
   blocked-patterns:
-    - "(?i)\\b(n+[i1]+gg+[e3]+r+|f+[a4]+g+|r+[e3]+t+[a4]+r+d+)\\b"
-    - "^[a@][s\\$][s\\$]$"
-    - "[a@][s\\$][s\\$]h[o0][l1][e3][s\\$]?"
-    - "b[a@][s\\$][t\\+][a@]rd"
-    - "b[i1][t\\+]ch[s\\$]?"
-    - "c[l1][i1][t\\+]"
-    - "(c|k|ck|q)[o0](c|k|ck|q)[s\\$]?"
-    - "(c|k|ck|q)un[t\\+][s\\$]?"
-    - "d[i1]ck"
-    - "(ph|f)u(c|k|ck|q)"
-    - "h[o0]rny"
-    - "p[o0]rn"
-    - "[s\\$][e3]x"
-    - "[s\\$]h[i1][t\\+][s\\$]?"
-    - "[s\\$][l1]u[t\\+][s\\$]?"
+    - "(?i)\b(n+[i1!]+gg+[e3]+r+|f+[a4]+g+|r+[e3]+t+[a4]+r+d+|d[i1]ck|h[o0]rny|p[o0]rn|[s\$][e3]x|[s\$]h[i1][t\+][s\$]?|[s\$][l1]u[t\+][s\$]?)\b"
+    - "(?i)\b(p+[e3]+n+[i1]+s+[e3]?|c[l1][i1][t\+])\b"
+    - "(?i)\b(n+[i1!]+q+q+[e3]+|t[a4]+p[e3]+t[a4]+r+[e3]+|p[e3]+d+[o0]+)\b"
+    - "(?i)\b(g+[u]+[e3]+u+l+[e3]+|m+[e3]+r+d+[e3]+|b+[i1]+t+[e3]+|s+[u]+c+[e3]+[u]+r+|b+[o0]+u+g+n+[o0]+u+l+|p+[u]+t+[e3]+|p+[u]+t+[a4]+[s\$]+[s\$]*)\b"
 
-    - "(?i)\\b(p+[e3]*d+[e3]*|t+[a4]+p+[e3]+t+[e3]+|b+[o0]+u+g+n+[o0]+u+l+)\\b"
-    - "(?i)\\b(s+[a4]+l+[o0]+p+[e3]*|b+[a4]+t+[a4]+r+d+|f+[i1]+l+s+d+[e3]+p+)\\b"
-    - "(?i)\\b(n+[i1]+q+u+[e3]+|t+[a4]+r+l+[o0]+[u]+z+[e3]*)\\b"
-    - "(?i)\\b(c+[o0]+n+[n]+[a4]+r+d+|c+[o0]+[n]+)\\b"
-    - "(?i)\\b(s+[u]+c+[e3]+|s+[u]+c+[e3]+[u]+r+)\\b"
-    - "(?i)\\b(p+[u]+t+[e3]+|p+[u]+t+[a4]+[s\\$]+[s\\$]*)\\b"
-    - "(?i)\\b(b+[i1]+t+[e3]+|e\\+n+c+[u]+l+[e3]+)\\b"
-    - "(?i)\\b(g+[u]+[e3]+u+l+[e3]+|m+[e3]+r+d+[e3]+)\\b"
-    - "(?i)\\b(p+[e3]+n+[i1]+s+|p+[e3]+n+[i1]+s+[e3]+)\\b"
-    - "(?i)\\b(p+[e3]+n+[i1]+s+[e3]+|p+[e3]+n+[i1]+s+)\\b"
-    - "(?i)\\b(p+[e3]+n+[i1]+s+[e3]+|p+[e3]+n+[i1]+s+[e3]+)\\b"
 
-    - "(?i)\\b[n]+[i1!]+[gq9]+[a@4]+\\b"
-    - "(?i)\\b[n]+[i1!]+[gq9]+\\b"
-    - "(?i)\\b[n]+[e3]+[gq9]+[r]+[o0]+\\b"
+worlds:
+  end:
+    enabled: true
 
-    - "(?i)\\b[n]+[1i]+[gq9]+[s\\$]+\\b"
-    - "(?i)\\b[ph]+[4a]+[gq]+[o0]+[t\\+]+\\b"
+border:
+  expansion-items:
+    DIAMOND: 10.0
+    NETHERITE_INGOT: 45.0
+    EMERALD: 5.0
+    DRAGON_EGG: 5000.0
+    NETHER_STAR: 300.0
+    BEACON: 80.0
+
