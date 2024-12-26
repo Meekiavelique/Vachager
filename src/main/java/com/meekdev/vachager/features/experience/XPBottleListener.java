@@ -1,6 +1,7 @@
 package com.meekdev.vachager.features.experience;
 
 import org.bukkit.Material;
+import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -34,7 +35,8 @@ public class XPBottleListener implements Listener {
         int playerXP = getTotalExperience(player);
 
         if (playerXP < XP_PER_BOTTLE) {
-            player.sendMessage("§cNot enough experience!");
+            player.sendMessage("§cYou don’t have enough experience to bottle!");
+            player.playSound(player.getLocation(), Sound.ENTITY_VILLAGER_NO, 1.0f, 0.8f);
             return;
         }
 
@@ -51,7 +53,10 @@ public class XPBottleListener implements Listener {
         }
 
         setTotalExperience(player, playerXP - XP_PER_BOTTLE);
-        player.playSound(player.getLocation(), Sound.ITEM_BOTTLE_FILL, 1.0f, 1.0f);
+
+        player.playSound(player.getLocation(), Sound.ITEM_BOTTLE_FILL, 1.0f, 1.2f);
+        player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.8f, 1.5f);
+        player.getWorld().spawnParticle(Particle.ENCHANT, player.getLocation().add(0, 1, 0), 50, 0.5, 0.5, 0.5, 0.1);
     }
 
     private int getTotalExperience(Player player) {

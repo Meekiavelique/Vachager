@@ -1,13 +1,15 @@
 package com.meekdev.vachager;
 
 import com.meekdev.vachager.chat.ChatManager;
+import com.meekdev.vachager.core.commands.EndCommand;
 import com.meekdev.vachager.core.config.ConfigManager;
 import com.meekdev.vachager.core.config.MessagesConfig;
 import com.meekdev.vachager.features.blocks.ChairSystem;
 import com.meekdev.vachager.features.blocks.PistonListener;
+import com.meekdev.vachager.features.discord.DragonEggListener;
 import com.meekdev.vachager.features.experience.XPBottleListener;
+import com.meekdev.vachager.core.commands.SpawnCommand;
 import com.meekdev.vachager.features.respawn.RespawnManager;
-import com.meekdev.vachager.core.commands.home.HomeCommand;
 import com.meekdev.vachager.features.mobs.BatDropListener;
 import com.meekdev.vachager.features.worlds.WorldManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
@@ -46,7 +48,8 @@ public final class VachagerSMP extends JavaPlugin {
     }
 
     private void registerCommands() {
-        new HomeCommand(this);
+        new EndCommand(this);
+        new SpawnCommand(this);
     }
 
     private void registerListeners() {
@@ -56,6 +59,7 @@ public final class VachagerSMP extends JavaPlugin {
         chatManager = new ChatManager(this);
 
         pm.registerEvents(new PistonListener(), this);
+        pm.registerEvents(new DragonEggListener(), this);
         pm.registerEvents(new XPBottleListener(), this);
         pm.registerEvents(new BatDropListener(), this);
     }
