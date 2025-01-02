@@ -1,4 +1,4 @@
-package com.meekdev.vachager.features.border;
+package com.meekdev.vachager.features.worlds;
 
 import org.bukkit.Material;
 import org.bukkit.World;

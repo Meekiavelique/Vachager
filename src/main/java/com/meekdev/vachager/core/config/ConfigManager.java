@@ -22,7 +22,7 @@ public class ConfigManager {
     }
 
     private void createDefaultConfigs() {
-        // Si le dossier du plugin n'existe pas, le créer
+
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdir();
         }
@@ -32,7 +32,7 @@ public class ConfigManager {
         createConfig("player_data.yml");
     }
 
-    private void createConfig(String fileName) {
+    public void createConfig(String fileName) {
         File file = new File(plugin.getDataFolder(), fileName);
 
         if (!file.exists()) {
@@ -79,5 +79,52 @@ public class ConfigManager {
 
     public void reloadConfig(String name) {
         configs.put(name, YamlConfiguration.loadConfiguration(configFiles.get(name)));
+    }
+
+    public void reloadAllConfigs() {
+        for (String fileName : configFiles.keySet()) {
+            reloadConfig(fileName);
+        }
+    }
+
+
+    public static class MessagesConfig {
+        private final VachagerSMP plugin;
+        private FileConfiguration config;
+
+        public MessagesConfig(VachagerSMP plugin) {
+            this.plugin = plugin;
+            loadMessages();
+        }
+
+        public void loadMessages() {
+            config = plugin.getConfigManager().getConfig("messages.yml");
+
+            setDefaultMessage("prefix", "<gradient:#FFB302:#FF7302>[VachagerSMP]</gradient>");
+            setDefaultMessage("spawn.set", "<prefix> Spawn point set for <duration> minutes!");
+            setDefaultMessage("spawn.invalid", "<prefix> You must be standing on a Lodestone!");
+            setDefaultMessage("spawn.no-diamonds", "<prefix> You need diamonds to set a spawn point!");
+            setDefaultMessage("end.disabled", "<prefix> The End is currently disabled!");
+            setDefaultMessage("end.enabled", "<prefix> The End has been enabled!");
+            setDefaultMessage("end.toggled", "<prefix> End access has been <state>!");
+            setDefaultMessage("error.no-permission", "<prefix> You don't have permission to do this!");
+
+            plugin.getConfigManager().saveConfig("messages.yml");
+        }
+
+        private void setDefaultMessage(String path, String defaultValue) {
+            if (!config.isSet(path)) {
+                config.set(path, defaultValue);
+                plugin.getLogger().warning("Missing config value for " + path + ". Using default: " + defaultValue);
+            }
+        }
+
+        public String getMessage(String path) {
+            String message = config.getString(path);
+            if (message == null) {
+                return "Missing message: " + path;
+            }
+            return message.replace("<prefix>", config.getString("prefix", ""));
+        }
     }
 }

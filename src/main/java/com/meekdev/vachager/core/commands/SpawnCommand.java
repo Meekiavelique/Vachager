@@ -1,6 +1,7 @@
 package com.meekdev.vachager.core.commands;
 
 import com.meekdev.vachager.VachagerSMP;
+import com.meekdev.vachager.utils.MessageUtils;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,6 +14,8 @@ import java.util.List;
 
 public class SpawnCommand implements CommandExecutor, TabCompleter {
     private final VachagerSMP plugin;
+    private static final String COLOR_ERROR = "#ff4d2e";
+    private static final String COLOR_SUCCESS = "#a7ff78";
 
     public SpawnCommand(VachagerSMP plugin) {
         this.plugin = plugin;
@@ -23,13 +26,13 @@ public class SpawnCommand implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (!(sender instanceof Player player)) {
-            sender.sendMessage(plugin.getMiniMessage().deserialize("<gradient:#FF0000:#FF6600>Only players can use this command!</gradient>"));
+            MessageUtils.sendMessage((Player) sender, "Seuls les joueurs peuvent utiliser cette commande !", COLOR_ERROR);
             return true;
         }
 
         Location spawnLocation = player.getWorld().getSpawnLocation();
         player.teleport(spawnLocation);
-        player.sendMessage(plugin.getMiniMessage().deserialize("<color:#ffce47>Vous êtes maintenant au spawn !</color>"));
+        MessageUtils.sendMessage(player, "Vous êtes maintenant au spawn !", COLOR_SUCCESS);
 
         return true;
     }

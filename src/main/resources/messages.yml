@@ -1,0 +1,24 @@
+prefix: "<gradient:#FFB302:#FF7302>[VachagerSMP]</gradient>"
+
+respawn:
+  set: "<prefix> Point de réapparition défini pour %minutes% minutes!"
+  expired: "<prefix> Votre point de réapparition a expiré!"
+  no_diamonds: "<prefix> Vous avez besoin de diamants pour définir un point de réapparition!"
+
+chat:
+  blocked: "<prefix> Message bloqué: Contenu restreint"
+
+worlds:
+  end:
+    disabled: "<prefix> L'End est actuellement désactivé!"
+    enabled: "<prefix> L'End a été activé!"
+
+home:
+  set: "<prefix> Point de retour défini!"
+  teleport: "<prefix> Téléportation..."
+  combat: "<prefix> Vous ne pouvez pas vous téléporter en combat!"
+  invalid_world: "<prefix> Vous ne pouvez pas définir de point de retour dans ce monde!"
+
+chairs:
+  enabled: "<prefix> Système de chaises activé!"
+  disabled: "<prefix> Système de chaises désactivé!"

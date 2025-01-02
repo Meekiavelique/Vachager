@@ -1,22 +1,19 @@
-package com.meekdev.vachager.features.discord;
+package com.meekdev.vachager.features.blocks;
 
 import com.meekdev.vachager.VachagerSMP;
+import com.meekdev.vachager.utils.MessageUtils;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.dependencies.jda.api.entities.TextChannel;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.*;
-import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.*;
-import org.bukkit.event.player.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -26,10 +23,12 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class DragonEggListener implements Listener {
     private final VachagerSMP plugin;
+
+
     private final AtomicReference<Location> lastKnownLocation = new AtomicReference<>();
-    private final AtomicReference<String> lastHolderName = new AtomicReference<>();
+    public final AtomicReference<String> lastHolderName = new AtomicReference<>();
     private volatile long lastAnnouncementTime = 0;
-    private static final long ANNOUNCEMENT_COOLDOWN = 300000; // 5 minutes
+    private static final long ANNOUNCEMENT_COOLDOWN = 300000;
     private volatile boolean isEggInWorld = false;
     private final Set<BukkitTask> activeTasks = new HashSet<>();
 
@@ -37,6 +36,58 @@ public class DragonEggListener implements Listener {
         this.plugin = plugin;
 
         startMaintenanceTask();
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryClick(InventoryClickEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        ItemStack clicked = event.getCurrentItem();
+        ItemStack cursor = event.getCursor();
+
+        boolean isDragonEggInvolved = (clicked != null && clicked.getType() == Material.DRAGON_EGG) ||
+                (cursor != null && cursor.getType() == Material.DRAGON_EGG);
+
+        if (isDragonEggInvolved) {
+            if (event.getInventory().getType() == InventoryType.ENDER_CHEST) {
+                event.setCancelled(true);
+                MessageUtils.sendMessage(player, "Vous ne pouvez pas stocker l'oeuf du dragon dans votre enderchest!", "#FF4D2E");
+                return;
+            }
+
+            updateEggLocation(player.getLocation(), player.getName(), "moved in inventory");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryMoveItem(InventoryMoveItemEvent event) {
+        if (event.getItem().getType() == Material.DRAGON_EGG) {
+            if (event.getDestination().getType() == InventoryType.ENDER_CHEST) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryPickupItem(InventoryPickupItemEvent event) {
+        if (event.getItem().getItemStack().getType() == Material.DRAGON_EGG) {
+            if (event.getInventory().getType() == InventoryType.ENDER_CHEST) {
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onInventoryDrag(InventoryDragEvent event) {
+        if (!(event.getWhoClicked() instanceof Player player)) return;
+
+        ItemStack dragged = event.getOldCursor();
+        if (dragged != null && dragged.getType() == Material.DRAGON_EGG) {
+            if (event.getInventory().getType() == InventoryType.ENDER_CHEST) {
+                event.setCancelled(true);
+                MessageUtils.sendMessage(player, "Vous ne pouvez pas stocker l'oeuf du dragon dans votre enderchest!", "#FF4D2E");
+            }
+        }
     }
 
     private void startMaintenanceTask() {
@@ -74,64 +125,9 @@ public class DragonEggListener implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockPlace(BlockPlaceEvent event) {
-        if (event.getBlock().getType() == Material.DRAGON_EGG) {
-            updateEggLocation(event.getBlock().getLocation(), event.getPlayer().getName(), "placed");
-        }
-    }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockBreak(BlockBreakEvent event) {
-        if (event.getBlock().getType() == Material.DRAGON_EGG) {
-            lastHolderName.set(event.getPlayer().getName());
-        }
-    }
 
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onEntityPickupItem(EntityPickupItemEvent event) {
-        if (event.getItem().getItemStack().getType() == Material.DRAGON_EGG && event.getEntity() instanceof Player player) {
-            updateEggLocation(player.getLocation(), player.getName(), "picked up");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onPlayerDropItem(PlayerDropItemEvent event) {
-        if (event.getItemDrop().getItemStack().getType() == Material.DRAGON_EGG) {
-            updateEggLocation(event.getItemDrop().getLocation(), event.getPlayer().getName(), "dropped");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.HIGHEST)
-    public void onInventoryClick(InventoryClickEvent event) {
-        if (!(event.getWhoClicked() instanceof Player player)) return;
-
-        ItemStack clicked = event.getCurrentItem();
-        ItemStack cursor = event.getCursor();
-
-        if ((clicked != null && clicked.getType() == Material.DRAGON_EGG) ||
-                (cursor != null && cursor.getType() == Material.DRAGON_EGG)) {
-
-            if (event.getInventory().getType() == InventoryType.ENDER_CHEST) {
-                event.setCancelled(true);
-                player.sendMessage(plugin.getMiniMessage().deserialize(
-                        "<gradient:#FF0000:#FF6600>You cannot store the Dragon Egg in your enderchest!</gradient>"));
-                return;
-            }
-
-            updateEggLocation(player.getLocation(), player.getName(), "moved in inventory");
-        }
-    }
-
-    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
-    public void onBlockFromTo(BlockFromToEvent event) {
-        if (event.getBlock().getType() == Material.DRAGON_EGG) {
-            plugin.getServer().getScheduler().runTask(plugin, () ->
-                    updateEggLocation(event.getToBlock().getLocation(), lastHolderName.get(), "teleported"));
-        }
-    }
-
-    private void updateEggLocation(Location newLocation, String holderName, String action) {
+    public void updateEggLocation(Location newLocation, String holderName, String action) {
         lastKnownLocation.set(newLocation);
         lastHolderName.set(holderName);
         isEggInWorld = true;
@@ -167,10 +163,18 @@ public class DragonEggListener implements Listener {
             message.append("Status: The Dragon Egg is currently missing!");
         }
 
-
         TextChannel channel = DiscordSRV.getPlugin().getMainTextChannel();
         if (channel != null) {
-            channel.sendMessage(message.toString()).queue();
+            if (plugin.getServer().getPluginManager().getPlugin("DiscordSRV") != null) {
+                try {
+
+                    if (channel != null) {
+                        channel.sendMessage(message.toString()).queue();
+                    }
+                } catch (Exception e) {
+                    plugin.getLogger().warning("Failed to send message to Discord: " + e.getMessage());
+                }
+            }
         }
 
         String inGameMessage = isEggInWorld ?

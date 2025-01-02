@@ -1,9 +1,10 @@
-name: VachagerSMP
+name: Vachager
 version: '1.0'
 main: com.meekdev.vachager.VachagerSMP
 api-version: '1.21'
 authors: [Meek]
 softdepend: [CarbonChat]
+depend: [DiscordSRV]
 description: SMP
 commands:
   chairs:
@@ -14,6 +15,9 @@ commands:
     description: Toggle the end dimension
     usage: /<command>
     permission: vachager.end.toggle
+  spawn:
+    description: Teleport to the world spawn point
+    usage: /spawn
 
 
 permissions:

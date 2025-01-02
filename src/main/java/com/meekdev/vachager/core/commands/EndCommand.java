@@ -1,6 +1,8 @@
 package com.meekdev.vachager.core.commands;
 
 import com.meekdev.vachager.VachagerSMP;
+import com.meekdev.vachager.utils.MessageUtils;
+import com.meekdev.vachager.features.worlds.EndEventManager;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -12,25 +14,35 @@ import java.util.List;
 
 public class EndCommand implements CommandExecutor, TabCompleter {
     private final VachagerSMP plugin;
+    private final EndEventManager endManager;
+    private static final String COLOR_ERROR = "#ff4d2e";
+    private static final String COLOR_SUCCESS = "#a7ff78";
 
     public EndCommand(VachagerSMP plugin) {
         this.plugin = plugin;
+        this.endManager = plugin.getEndEventManager();
+
+
         plugin.getCommand("toggleend").setExecutor(this);
         plugin.getCommand("toggleend").setTabCompleter(this);
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (!sender.hasPermission("vachager.end.toggle")) {
-            sender.sendMessage(plugin.getMiniMessage().deserialize("<gradient:#FF0000:#FF6600>You don't have permission!</gradient>"));
+        if (!(sender instanceof Player player)) {
             return true;
         }
 
-        boolean newState = !plugin.getWorldManager().isEndEnabled();
-        plugin.getWorldManager().setEndEnabled(newState);
+        if (!player.hasPermission("vachager.end.toggle")) {
+            MessageUtils.sendMessage(player, "Vous n'avez pas la permission !", COLOR_ERROR);
+            return true;
+        }
 
-        String stateMsg = newState ? "<gradient:#00FF00:#00FFAA>enabled</gradient>" : "<gradient:#FF0000:#FF6600>disabled</gradient>";
-        sender.sendMessage(plugin.getMiniMessage().deserialize("<gradient:#FFB302:#FF7302>The End has been " + stateMsg));
+        boolean success = endManager.toggleEndManually(player);
+
+        if (!success) {
+            MessageUtils.sendMessage(player, "Impossible de toggle l'End pendant un event !", COLOR_ERROR);
+        }
 
         return true;
     }

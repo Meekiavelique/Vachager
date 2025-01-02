@@ -21,33 +21,41 @@ public class PistonListener implements Listener {
         Block block = event.getClickedBlock();
         ItemStack item = player.getInventory().getItemInMainHand();
 
-        if (block == null || item.getType() != Material.IRON_AXE && item.getType() != Material.DIAMOND_AXE
-                && item.getType() != Material.NETHERITE_AXE) return;
 
-        if (block.getType() == Material.STICKY_PISTON) {
-            block.setType(Material.PISTON);
+        if (block == null) return;
+        if (block.getType() != Material.STICKY_PISTON) return;
+        if (!isAxe(item.getType())) return;
 
-            block.getWorld().dropItemNaturally(block.getLocation().add(0.5, 0.5, 0.5),
-                    new ItemStack(Material.SLIME_BALL));
 
-            block.getWorld().spawnParticle(
-                    Particle.ITEM_SLIME,
-                    block.getLocation().add(0.5, 0.5, 0.5),
-                    10,
-                    0.3,
-                    0.3,
-                    0.3,
-                    0
-            );
+        event.setCancelled(true);
 
-            block.getWorld().playSound(
-                    block.getLocation(),
-                    Sound.BLOCK_SLIME_BLOCK_BREAK,
-                    1.0f,
-                    1.0f
-            );
+        block.setType(Material.PISTON);
+        block.getWorld().dropItemNaturally(
+                block.getLocation().add(0.5, 0.5, 0.5),
+                new ItemStack(Material.SLIME_BALL)
+        );
 
-            event.setCancelled(true);
-        }
+
+        addEffects(block);
+    }
+
+    private boolean isAxe(Material material) {
+        return material == Material.IRON_AXE ||
+                material == Material.DIAMOND_AXE ||
+                material == Material.NETHERITE_AXE;
+    }
+
+    private void addEffects(Block block) {
+        block.getWorld().spawnParticle(
+                Particle.ITEM_SLIME,
+                block.getLocation().add(0.5, 0.5, 0.5),
+                10, 0.3, 0.3, 0.3, 0
+        );
+
+        block.getWorld().playSound(
+                block.getLocation(),
+                Sound.BLOCK_SLIME_BLOCK_BREAK,
+                1.0f, 1.0f
+        );
     }
 }

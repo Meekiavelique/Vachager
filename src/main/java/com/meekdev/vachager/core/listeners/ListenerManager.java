@@ -1,52 +1,58 @@
 package com.meekdev.vachager.core.listeners;
 
 import com.meekdev.vachager.VachagerSMP;
-import org.bukkit.event.EventHandler;
+import com.meekdev.vachager.features.blocks.ChairSystem;
+import com.meekdev.vachager.features.blocks.DragonEggListener;
+import com.meekdev.vachager.features.blocks.PistonListener;
+import com.meekdev.vachager.features.pvp.NewPlayerImmunityListener;
+import com.meekdev.vachager.features.pvp.PvPManager;
+import com.meekdev.vachager.features.qol.BatDropListener;
+import com.meekdev.vachager.features.qol.XPBottleListener;
+import com.meekdev.vachager.features.respawn.LodestoneListener;
+import com.meekdev.vachager.features.respawn.LodestoneManager;
+import com.meekdev.vachager.features.respawn.RespawnManager;
+import com.meekdev.vachager.features.worlds.BorderExpansionListener;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerPortalEvent;
-import org.bukkit.event.world.PortalCreateEvent;
-import org.bukkit.Location;
-import org.bukkit.World.Environment;
 
+import java.util.ArrayList;
+import java.util.List;
 
-public class ListenerManager implements Listener {
+public class ListenerManager {
     private final VachagerSMP plugin;
+    private final List<Listener> listeners;
 
     public ListenerManager(VachagerSMP plugin) {
         this.plugin = plugin;
+        this.listeners = new ArrayList<>();
+        initializeListeners();
+    }
+
+    public void initializeListeners() {
+        listeners.add(new ChairSystem(plugin));
+        listeners.add(new DragonEggListener(plugin));
+        listeners.add(new PistonListener());
+        listeners.add(new NewPlayerImmunityListener(plugin));
+        listeners.add(new PvPManager());
+        listeners.add(new BatDropListener());
+        listeners.add(new XPBottleListener());
+        LodestoneManager lodestoneManager = new LodestoneManager(plugin);
+        RespawnManager respawnManager = plugin.getRespawnManager();
+        listeners.add(new LodestoneListener(plugin, lodestoneManager, respawnManager));
+        listeners.add(new BorderExpansionListener());
+        listeners.add(new EventListener(plugin));
     }
 
     public void registerListeners() {
-        plugin.getServer().getPluginManager().registerEvents(this, plugin);
-    }
-
-    @EventHandler
-    public void onPlayerRespawn(PlayerRespawnEvent event) {
-        Location respawnLoc = plugin.getRespawnManager().getRespawnLocation(event.getPlayer());
-        if (respawnLoc != null) {
-            event.setRespawnLocation(respawnLoc);
+        for (Listener listener : listeners) {
+            plugin.getServer().getPluginManager().registerEvents(listener, plugin);
         }
     }
 
-    @EventHandler
-    public void onPlayerPortal(PlayerPortalEvent event) {
-        if (event.getTo().getWorld().getEnvironment() == Environment.THE_END) {
-            if (!plugin.getWorldManager().isEndEnabled()) {
-                event.setCancelled(true);
-                event.getPlayer().sendMessage(
-                        plugin.getMiniMessage().deserialize("<color:#ffce47>L'End est actuellement désactivé !</color>")
-                );
-            }
+    public void unregisterListeners() {
+        for (Listener listener : listeners) {
+            HandlerList.unregisterAll(listener);
         }
-    }
-
-    @EventHandler
-    public void onPortalCreate(PortalCreateEvent event) {
-        if (event.getWorld().getEnvironment() == Environment.THE_END) {
-            if (!plugin.getWorldManager().isEndEnabled()) {
-                event.setCancelled(true);
-            }
-        }
+        listeners.clear();
     }
 }

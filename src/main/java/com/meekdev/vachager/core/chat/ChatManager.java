@@ -1,11 +1,9 @@
-package com.meekdev.vachager.chat;
+package com.meekdev.vachager.core.chat;
 
 import com.meekdev.vachager.VachagerSMP;
+import com.meekdev.vachager.utils.MessageUtils;
 import net.draycia.carbon.api.CarbonChat;
 import net.draycia.carbon.api.CarbonChatProvider;
-import net.draycia.carbon.api.channels.ChatChannel;
-import net.draycia.carbon.api.users.CarbonPlayer;
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -18,6 +16,7 @@ public class ChatManager implements Listener {
     private final VachagerSMP plugin;
     private final List<Pattern> blockedPatterns;
     private CarbonChat carbonChat;
+    private static final String COLOR_ERROR = "#ff4d2e";
 
     public ChatManager(VachagerSMP plugin) {
         this.plugin = plugin;
@@ -30,9 +29,9 @@ public class ChatManager implements Listener {
     private void setupCarbonChat() {
         try {
             this.carbonChat = CarbonChatProvider.carbonChat();
-            plugin.getLogger().info("Successfully hooked into CarbonChat!");
+            plugin.getLogger().info("Connexion réussie avec CarbonChat !");
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to hook into CarbonChat: " + e.getMessage());
+            plugin.getLogger().warning("Échec de la connexion avec CarbonChat : " + e.getMessage());
         }
     }
 
@@ -42,7 +41,7 @@ public class ChatManager implements Listener {
             try {
                 blockedPatterns.add(Pattern.compile(pattern, Pattern.CASE_INSENSITIVE));
             } catch (Exception e) {
-                plugin.getLogger().warning("Invalid regex pattern: " + pattern);
+                plugin.getLogger().warning("Motif regex invalide : " + pattern);
             }
         }
     }
@@ -51,7 +50,7 @@ public class ChatManager implements Listener {
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         if (isMessageBlocked(event.getMessage())) {
             event.setCancelled(true);
-            event.getPlayer().sendMessage("§cVotre message a été bloqué car il contient du contenu restreint.\n");
+            MessageUtils.sendMessage(event.getPlayer(), "Votre message a été bloqué car il contient du contenu restreint.", COLOR_ERROR);
         }
     }
 
@@ -72,7 +71,7 @@ public class ChatManager implements Listener {
             plugin.getConfig().set("chat.blocked-patterns", patterns);
             plugin.saveConfig();
         } catch (Exception e) {
-            plugin.getLogger().warning("Failed to add blocked pattern: " + e.getMessage());
+            plugin.getLogger().warning("Échec de l'ajout du motif bloqué : " + e.getMessage());
         }
     }
 

@@ -1,102 +1,170 @@
 package com.meekdev.vachager;
 
-import com.meekdev.vachager.chat.ChatManager;
-import com.meekdev.vachager.core.commands.EndCommand;
+import com.meekdev.vachager.core.chat.ChatManager;
+import com.meekdev.vachager.core.commands.CommandManager;
 import com.meekdev.vachager.core.config.ConfigManager;
-import com.meekdev.vachager.core.config.MessagesConfig;
-import com.meekdev.vachager.features.blocks.ChairSystem;
-import com.meekdev.vachager.features.blocks.PistonListener;
-import com.meekdev.vachager.features.discord.DragonEggListener;
-import com.meekdev.vachager.features.experience.XPBottleListener;
-import com.meekdev.vachager.core.commands.SpawnCommand;
+import com.meekdev.vachager.core.listeners.ListenerManager;
+import com.meekdev.vachager.features.respawn.LodestoneManager;
 import com.meekdev.vachager.features.respawn.RespawnManager;
-import com.meekdev.vachager.features.mobs.BatDropListener;
+import com.meekdev.vachager.features.worlds.EndEventListener;
+import com.meekdev.vachager.features.worlds.EndEventManager;
 import com.meekdev.vachager.features.worlds.WorldManager;
+import com.meekdev.vachager.utils.LegacyRandomManager;
 import net.kyori.adventure.text.minimessage.MiniMessage;
-import org.bukkit.plugin.PluginManager;
+import org.bukkit.NamespacedKey;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 public final class VachagerSMP extends JavaPlugin {
     private ConfigManager configManager;
-    private MessagesConfig messagesConfig;
+    private EndEventManager endEventManager;
     private RespawnManager respawnManager;
     private WorldManager worldManager;
     private MiniMessage miniMessage;
     private ChatManager chatManager;
-    private ChairSystem chairSystem;
+    private ListenerManager listenerManager;
+    private CommandManager commandManager;
+    private LodestoneManager lodestoneManager;
 
     @Override
     public void onEnable() {
-        miniMessage = MiniMessage.miniMessage();
+        try {
+            // Initialize MiniMessage first as it's required by many components
+            this.miniMessage = MiniMessage.miniMessage();
 
-        initializeConfigs();
-        initializeManagers();
-        registerCommands();
-        registerListeners();
+            if (this.miniMessage == null) {
+                throw new IllegalStateException("Failed to initialize MiniMessage");
+            }
 
-        getLogger().info("VachagerSMP has been enabled!");
-    }
+            // Create data folder if it doesn't exist
+            if (!getDataFolder().exists() && !getDataFolder().mkdirs()) {
+                throw new IllegalStateException("Failed to create plugin directory");
+            }
 
-    private void initializeConfigs() {
-        configManager = new ConfigManager(this);
-        configManager.loadAll();
-        messagesConfig = new MessagesConfig(this);
+            // Load configuration first as other components depend on it
+            this.configManager = new ConfigManager(this);
+            this.configManager.loadAll();
+
+            // Verify essential config values exist
+            this.lodestoneManager = new LodestoneManager(this);
+            this.endEventManager = new EndEventManager(this);
+            getServer().getPluginManager().registerEvents(
+                    new EndEventListener(this, endEventManager),
+                    this
+            );
+
+            // Initialize core managers in dependency order
+            initializeManagers();
+
+            // Register all events and commands
+            registerHandlers();
+
+            // Start any scheduled tasks
+            startTasks();
+
+            getLogger().info("Vachager has been enabled successfully!");
+        } catch (Exception e) {
+            getLogger().severe("Failed to enable Vachager: " + e.getMessage());
+            e.printStackTrace();
+            getServer().getPluginManager().disablePlugin(this);
+        }
     }
 
     private void initializeManagers() {
-        worldManager = new WorldManager(this);
+        // World manager first as it's needed for respawn
+        this.worldManager = new WorldManager(this);
+
+        // Respawn manager depends on world manager
+        this.respawnManager = new RespawnManager(this);
+        if (this.respawnManager == null) {
+            throw new IllegalStateException("Failed to initialize RespawnManager");
+        }
+
+        // Initialize optional integrations
+        try {
+            this.chatManager = new ChatManager(this);
+        } catch (Exception e) {
+            getLogger().warning("Chat features disabled: " + e.getMessage());
+        }
     }
 
-    private void registerCommands() {
-        new EndCommand(this);
-        new SpawnCommand(this);
+    private void registerHandlers() {
+        // Initialize listener manager first
+        if (this.listenerManager == null) {
+            this.listenerManager = new ListenerManager(this);
+        }
+
+        // Register all listeners
+        try {
+            this.listenerManager.registerListeners();
+        } catch (Exception e) {
+            getLogger().severe("Failed to register listeners: " + e.getMessage());
+            throw e;
+        }
+
+        // Initialize and register commands
+        this.commandManager = new CommandManager(this);
+        try {
+            this.commandManager.registerCommands();
+        } catch (Exception e) {
+            getLogger().severe("Failed to register commands: " + e.getMessage());
+            throw e;
+        }
     }
 
-    private void registerListeners() {
-        PluginManager pm = getServer().getPluginManager();
-
-        chairSystem = new ChairSystem(this);
-        chatManager = new ChatManager(this);
-
-        pm.registerEvents(new PistonListener(), this);
-        pm.registerEvents(new DragonEggListener(), this);
-        pm.registerEvents(new XPBottleListener(), this);
-        pm.registerEvents(new BatDropListener(), this);
+    private void startTasks() {
+        // Register any cleanup tasks
+        getServer().getScheduler().runTaskTimer(this, () -> {
+            try {
+                if (respawnManager != null) {
+                    // Cleanup expired respawn points
+                }
+            } catch (Exception e) {
+                getLogger().warning("Error in cleanup task: " + e.getMessage());
+            }
+        }, 20L * 60L, 20L * 60L); // Run every minute
     }
 
     @Override
     public void onDisable() {
-        if (chairSystem != null) {
-            chairSystem.disableChairs();
+        try {
+            // Save all configuration data
+            if (configManager != null) {
+                configManager.saveAll();
+            }
+
+            // Cleanup managers in reverse order
+            if (listenerManager != null) {
+                listenerManager.unregisterListeners();
+            }
+
+            // Cancel all tasks
+            getServer().getScheduler().cancelTasks(this);
+
+            getLogger().info("Vachager has been disabled successfully!");
+            LegacyRandomManager.cleanupAll();
+        } catch (Exception e) {
+            getLogger().severe("Error during plugin disable: " + e.getMessage());
+            e.printStackTrace();
         }
-        if (worldManager != null) {
-            worldManager.shutdown();
-        }
-        configManager.saveAll();
-        getLogger().info("VachagerSMP has been disabled!");
     }
 
-    public ConfigManager getConfigManager() {
-        return configManager;
+    // Getters for the managers
+    public ConfigManager getConfigManager() { return configManager; }
+    public RespawnManager getRespawnManager() { return respawnManager; }
+    public WorldManager getWorldManager() { return worldManager; }
+    public MiniMessage getMiniMessage() { return miniMessage; }
+    public ChatManager getChatManager() { return chatManager; }
+
+    public @NotNull NamespacedKey getKey(String chair) {
+        return new NamespacedKey(this, chair);
     }
 
-    public WorldManager getWorldManager() {
-        return worldManager;
+    public LodestoneManager getLodestoneManager() {
+        return lodestoneManager;
     }
 
-    public MessagesConfig getMessagesConfig() {
-        return messagesConfig;
-    }
-
-    public MiniMessage getMiniMessage() {
-        return miniMessage;
-    }
-
-    public ChatManager getChatManager() {
-        return chatManager;
-    }
-
-    public RespawnManager getRespawnManager() {
-        return respawnManager;
+    public EndEventManager getEndEventManager() {
+        return endEventManager;
     }
 }

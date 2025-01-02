@@ -1,4 +1,4 @@
-package com.meekdev.vachager.features.mobs;
+package com.meekdev.vachager.features.qol;
 
 import org.bukkit.Material;
 import org.bukkit.entity.EntityType;

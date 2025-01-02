@@ -5,6 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.HashMap;
@@ -48,15 +49,19 @@ public class RespawnManager {
 
     public Location getRespawnLocation(Player player) {
         RespawnPoint point = respawnPoints.get(player.getUniqueId());
+        if (point == null || !point.isValid()) return null;
 
-        if (point != null && point.isValid()) {
-            Location loc = point.getLocation();
-            if (loc.getBlock().getType() == Material.LODESTONE) {
-                return loc;
-            }
-        }
+        Location loc = point.getLocation();
+        if (!isValidRespawnLocation(loc)) return null;
 
-        return player.getBedSpawnLocation();
+        return loc.clone().add(0.5, 1, 0.5);
+    }
+    private boolean isValidRespawnLocation(Location loc) {
+        return loc != null &&
+                loc.getBlock().getType() == Material.LODESTONE &&
+                plugin.getLodestoneManager().isLodestoneActive(loc) &&
+                loc.getBlock().getRelative(0, 1, 0).getType() == Material.AIR &&
+                loc.getBlock().getRelative(0, 2, 0).getType() == Material.AIR;
     }
 
     private void loadRespawnPoints() {
@@ -87,5 +92,21 @@ public class RespawnManager {
         config.set("respawns." + uuid + ".expiry", point.getExpiryTime());
 
         plugin.getConfigManager().saveConfig("player_data.yml");
+    }
+    public void handlePlayerRespawn(PlayerRespawnEvent event) {
+        Player player = event.getPlayer();
+        RespawnPoint point = respawnPoints.get(player.getUniqueId());
+
+        if (point != null && point.isValid()) {
+            Location loc = point.getLocation();
+            if (loc.getBlock().getType() == Material.LODESTONE) {
+                Location respawnLoc = loc.clone().add(0.5, 1, 0.5);
+                event.setRespawnLocation(respawnLoc);
+
+                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                    LodestoneListener.playRespawnEffects(loc, player);
+                }, 1L);
+            }
+        }
     }
 }
